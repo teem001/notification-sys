@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  notification_service:
+    container_name: notification_service
+    build:
+      context: .
+    env_file: .env
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
