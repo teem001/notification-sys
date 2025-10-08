@@ -30,7 +30,7 @@ export class SmsConsumer {
       return;
     }
     const payload = JSON.parse(message.Body);
-    // expected: { toPhoneNumber, message, trackingId }
+    // expected: { toPhoneNumber, subject, message, trackingId }
     await this.notifications.processSMS(payload);
   }
 }

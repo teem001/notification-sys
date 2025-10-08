@@ -25,4 +25,15 @@ export class NotificationRepository {
     const entity = this.repo.create(payload);
     return this.repo.save(entity);
   }
+  async findAndCountByRecipient(
+    recipient: string,
+    options: { take: number; skip: number},
+  ) {
+    return this.repo.findAndCount({
+      where: { recipient },
+      order: { createdAt: 'DESC' }, 
+      skip: options.skip,
+      take: options.take,
+    });
+  }
 }

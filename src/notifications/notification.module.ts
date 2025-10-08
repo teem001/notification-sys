@@ -5,10 +5,18 @@ import { PushModule } from './push/push.module';
 import { DatabaseModule } from 'src/database/database.modules';
 import { NotificationsService } from './notification.service';
 import { NotificationRepository } from 'src/database/repositories/notification.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Notification } from 'src/database/entities/notification.entity';
 
 @Module({
-  imports: [SmsModule, EmailModule, PushModule, DatabaseModule],
+  imports: [
+    SmsModule,
+    EmailModule,
+    PushModule,
+    DatabaseModule,
+    TypeOrmModule.forFeature([Notification]),
+  ],
   providers: [NotificationsService, NotificationRepository],
-  exports: [NotificationsService],
+  exports: [NotificationRepository, NotificationsService],
 })
 export class NotificationsModule {}

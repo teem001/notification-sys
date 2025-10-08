@@ -13,6 +13,9 @@ export class EmailRepository {
   async findByTrackingId(trackingId: string): Promise<Email | null> {
     return this.repo.findOne({ where: { trackingId } });
   }
+  async findByToEmail(email: string): Promise<Email | null> {
+    return this.repo.findOne({ where: { toEmail: email } });
+  }
 
   async saveEmail(payload: {
     trackingId: string;

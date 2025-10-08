@@ -69,10 +69,10 @@ export class SqsService implements OnModuleInit {
     private readonly pushConsumer: PushConsumer,
     private readonly logger: LoggerService,
   ) {
-    this.client = new SQSClient({ region: this.config.get('aws.region') });
-    this.smsQueueUrl = this.config.get('queues.sms');
-    this.emailQueueUrl = this.config.get('queues.email');
-    this.pushQueueUrl = this.config.get('queues.push');
+    this.client = new SQSClient({ region: this.config.get('AWS_REGION') });
+    this.smsQueueUrl = this.config.get('QUEUE_SMS');
+    this.emailQueueUrl = this.config.get('QUEUE_EMAIL');
+    this.pushQueueUrl = this.config.get('QUEUE_PUSH');
   }
 
   async onModuleInit() {
@@ -152,7 +152,6 @@ export class SqsService implements OnModuleInit {
           this.logger.error(
             `SQS poll error for ${label}: ${err?.message ?? err}`,
           );
-          // small pause on error to avoid tight loop
           await new Promise((r) => setTimeout(r, 2000));
         }
       }

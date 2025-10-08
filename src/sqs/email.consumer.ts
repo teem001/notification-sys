@@ -18,7 +18,7 @@ export class EmailConsumer {
       return;
     }
     const payload = JSON.parse(message.Body);
-    // expected: { toEmail, message, trackingId, isHtml, attachments }
+    // expected: { toEmail, message, subject, trackingId, isHtml, attachments }
     await this.notifications.processEmail(payload);
   }
 }

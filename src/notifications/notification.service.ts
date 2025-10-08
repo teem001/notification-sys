@@ -3,6 +3,9 @@ import { NotificationRepository } from '../database/repositories/notification.re
 import { SmsService } from './sms/sms.service';
 import { EmailService } from './email/email.service';
 
+function isEmail(recipient: string): boolean {
+  return recipient.includes('@');
+}
 @Injectable()
 export class NotificationsService {
   constructor(
@@ -81,5 +84,53 @@ export class NotificationsService {
       message: `${title ?? ''} ${body ?? ''}`,
       delivered: true,
     });
+  }
+  async getUserNotificationsById(
+    userId: string,
+    params: { perPage: number; page: number },
+  ) {
+    const { perPage, page } = params;
+    const skip = (page - 1) * perPage;
+
+    const [data, total] = await this.repo.findAndCountByRecipient(userId, {
+      take: perPage,
+      skip,
+    });
+
+    return {
+      data,
+      pagination: {
+        total,
+        perPage,
+        page,
+        totalPages: Math.ceil(total / perPage),
+      },
+    };
+  }
+
+  /**
+   * Fetch notifications for a user by identifier (email, phone number, or device token)
+   */
+  async getUserNotifications(
+    recipient: string,
+    params: { perPage: number; page: number },
+  ) {
+    const { perPage, page } = params;
+    const skip = (page - 1) * perPage;
+
+    const [data, total] = await this.repo.findAndCountByRecipient(recipient, {
+      take: perPage,
+      skip,
+    });
+
+    return {
+      data,
+      pagination: {
+        total,
+        perPage,
+        page,
+        totalPages: Math.ceil(total / perPage),
+      },
+    };
   }
 }

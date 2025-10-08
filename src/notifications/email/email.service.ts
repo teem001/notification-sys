@@ -9,13 +9,12 @@ export class EmailService {
   private provider: EmailProvider;
 
   constructor(private readonly logger: LoggerService) {
-    // Pick provider dynamically (env or DB config in real case)
-    const provider = process.env.EMAIL_PROVIDER || 'ses';
+    const provider = process.env.EMAIL_PROVIDER || 'nodemailer';
 
-    if (provider === 'ses') {
-      this.provider = new SesProvider();
-    } else {
+    if (provider === 'nodemailer') {
       this.provider = new NodemailerProvider();
+    } else {
+      this.provider = new SesProvider();
     }
   }
 
