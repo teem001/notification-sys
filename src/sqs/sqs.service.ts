@@ -1,48 +1,3 @@
-// import { Injectable, OnModuleInit } from '@nestjs/common';
-// import {
-//   SQSClient,
-//   ReceiveMessageCommand,
-//   DeleteMessageCommand,
-// } from '@aws-sdk/client-sqs';
-
-// @Injectable()
-// export class SqsService implements OnModuleInit {
-//   private client = new SQSClient({ region: process.env.AWS_REGION });
-
-//   async onModuleInit() {
-//     this.pollQueue(process.env.SMS_QUEUE_URL, 'SMS');
-//     this.pollQueue(process.env.EMAIL_QUEUE_URL, 'EMAIL');
-//     this.pollQueue(process.env.PUSH_QUEUE_URL, 'PUSH');
-//   }
-
-//   private async pollQueue(queueUrl: string, type: 'SMS' | 'EMAIL' | 'PUSH') {
-//     while (true) {
-//       const command = new ReceiveMessageCommand({
-//         QueueUrl: queueUrl,
-//         WaitTimeSeconds: 20,
-//         MaxNumberOfMessages: 5,
-//       });
-//       const { Messages } = await this.client.send(command);
-
-//       if (Messages?.length) {
-//         for (const msg of Messages) {
-//           try {
-//             // Dispatch to consumer
-//             // (Use NestJS EventEmitter or direct call)
-//           } finally {
-//             await this.client.send(
-//               new DeleteMessageCommand({
-//                 QueueUrl: queueUrl,
-//                 ReceiptHandle: msg.ReceiptHandle,
-//               }),
-//             );
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   SQSClient,
@@ -69,8 +24,15 @@ export class SqsService implements OnModuleInit {
     private readonly pushConsumer: PushConsumer,
     private readonly logger: LoggerService,
   ) {
-    this.client = new SQSClient({ region: this.config.get('AWS_REGION') });
-    this.smsQueueUrl = this.config.get('QUEUE_SMS');
+this.client = new SQSClient({
+  region: this.config.get('AWS_REGION') || 'us-east-1',
+  endpoint: this.config.get('SQS_ENDPOINT'), 
+  credentials: {
+    accessKeyId: this.config.get('AWS_ACCESS_KEY_ID') || 'test',
+    secretAccessKey: this.config.get('AWS_SECRET_ACCESS_KEY') || 'test',
+  },
+}); 
+   this.smsQueueUrl = this.config.get('QUEUE_SMS');
     this.emailQueueUrl = this.config.get('QUEUE_EMAIL');
     this.pushQueueUrl = this.config.get('QUEUE_PUSH');
   }
@@ -103,14 +65,13 @@ export class SqsService implements OnModuleInit {
     label: string,
   ) {
     this.logger.log(`Starting long-poll for ${label} queue: ${queueUrl}`);
-    // Run poll loop asynchronously (non-blocking)
     (async () => {
       while (true) {
         try {
           const cmd = new ReceiveMessageCommand({
             QueueUrl: queueUrl,
             MaxNumberOfMessages: 5,
-            WaitTimeSeconds: 20, // long polling
+            WaitTimeSeconds: 20, 
             VisibilityTimeout: 60,
           });
           const resp = await this.client.send(cmd);
@@ -127,10 +88,8 @@ export class SqsService implements OnModuleInit {
                   `Error processing message: ${err?.message ?? err}`,
                   err,
                 );
-                // leave message for retry / DLQ
                 continue;
               } finally {
-                // attempt delete to avoid reprocessing (only if handler succeeded ideally)
                 try {
                   if (msg.ReceiptHandle) {
                     await this.client.send(

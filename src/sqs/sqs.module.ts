@@ -1,6 +1,5 @@
 import { Module, Global } from '@nestjs/common';
 import { SqsService } from './sqs.service';
-// import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '../libs/logger/logger.module';
 import { NotificationsModule } from 'src/notifications/notification.module';
 import { SmsConsumer } from './sms.consumer';
