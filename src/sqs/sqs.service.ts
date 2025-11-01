@@ -31,14 +31,13 @@ this.client = new SQSClient({
     accessKeyId: this.config.get('AWS_ACCESS_KEY_ID') || 'test',
     secretAccessKey: this.config.get('AWS_SECRET_ACCESS_KEY') || 'test',
   },
-}); 
-   this.smsQueueUrl = this.config.get('QUEUE_SMS');
+});
+    this.smsQueueUrl = this.config.get('QUEUE_SMS');
     this.emailQueueUrl = this.config.get('QUEUE_EMAIL');
     this.pushQueueUrl = this.config.get('QUEUE_PUSH');
   }
 
   async onModuleInit() {
-    // Start polling each queue
     if (this.smsQueueUrl)
       this.startPolling(
         this.smsQueueUrl,
